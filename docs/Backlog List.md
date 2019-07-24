@@ -14,4 +14,6 @@
 
 7. Done - The user shall be able to select an item as the current item of work, and when selected the item should be highlighted (invert foreground and background colors)
 
-8. If every task about the current task is complete, delete them.
+8. Done - If every task about the current task is complete, delete them.
+
+9. Done - The user should not be able to start more than one task at a time.
