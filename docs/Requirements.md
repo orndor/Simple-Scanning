@@ -7,7 +7,7 @@
   * Develop software for Simple Scanning.
     * Actions which can be completed on a list of things:
       * Cross-Out (Completed)
-      * Re-Enter (Moved to the bottom of the list)
+      * Re-Enter (cross-out, and moved to the bottom of the list)
       * Skip (Do later)
     * Console UI.
     * Single line items, user enters lines of text (freeform)
@@ -38,5 +38,3 @@
 * The task list shall be stored in a text file within the same directory from where the application executable is stored.
 
 * The user shall be able to select an item as the current item of work, and when selected the item should be highlighted (invert foreground and background colors)
-
-* The user shall be able to select an item to skip, which moves it to the top of the task list.
