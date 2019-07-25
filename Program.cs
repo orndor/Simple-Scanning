@@ -1,4 +1,14 @@
-﻿using System;
+﻿// File name: Program.cs
+// Project Name: Simply_Scanning
+// Author: Orndoff, Robert K.
+// Date created: 07/22/2019
+// Date last modified: 07/25/2019
+//
+// Purpose: MSSA Homework assignment to create a simple task tracking application based on 
+// Mark Forster Simply Scanning technique: http://markforster.squarespace.com/blog/2017/12/2/simple-scanning-the-rules.html
+//
+// C#
+using System;
 using System.IO;
 using System.Collections.Generic;
 
@@ -6,49 +16,52 @@ namespace Simple_Scanning
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
-            char menuInput = ' ';
+            char menuInput;
             char delimiterChars = '␟';
             int currentPlaceOnList = 0;
             string fileName = @"Task-List.txt";
 
-            List<string> taskLists = FileReader(delimiterChars, fileName);
+            List<string> taskLists = FileReader(fileName);
             currentPlaceOnList = ConsoleWriter(delimiterChars, currentPlaceOnList, taskLists);
-            menuInput = MenuPrinter();
 
             do
             {
+                MenuPrinter("Options: [N]ext page.  [I]nsert a new task.  [E]dit a task.  E[X]it.");
+                menuInput = Console.ReadKey().KeyChar;
+
                 if (menuInput == 'N' || menuInput == 'n')
                 {
                     currentPlaceOnList = ConsoleWriter(delimiterChars, currentPlaceOnList, taskLists);
-                    menuInput = MenuPrinter();
                 }
                 else if (menuInput == 'I' || menuInput == 'i')
                 {
-                    Console.WriteLine("\nEnter a new task on a single line.  Hit enter when complete.");
+                    MenuPrinter("Enter a new task on a single line.  Hit enter when complete.");
                     string newTask = Console.ReadLine();
+
                     using (StreamWriter streamLine = File.AppendText(@"Task-List.txt"))
                     {
                         streamLine.WriteLine($"O{delimiterChars}{taskLists.Count + 1}.{delimiterChars}{newTask}");
                     }
 
-                    taskLists = FileReader(delimiterChars, fileName);
-                    ConsoleWriter(delimiterChars, 0, taskLists);
-                    menuInput = MenuPrinter();
+                    taskLists = FileReader(fileName);
+                    currentPlaceOnList = ConsoleWriter(delimiterChars, 0, taskLists);
                 }
                 else if (menuInput == 'E' || menuInput == 'e')
                 {
-                    Console.WriteLine("\nEnter the task number you wish to edit, and then press Enter:");
+                    MenuPrinter("Enter the task number you wish to edit, and then press Enter:");
                     int taskNumber = int.Parse(Console.ReadLine());
-                    if(taskNumber > taskLists.Count)
+
+                    if (taskNumber > taskLists.Count)
                     {
-                        Console.WriteLine("\nThat task number dosen't exist.  Please try again.\n");
+                        MenuPrinter("That task number dosen't exist.  Please try again.");
                     }
                     else
                     {
-                        Console.WriteLine("\nWould you like to [D]ismiss, [R]eenter the task, or [S]tart working a task? Or go [B]ack?");
+                        MenuPrinter("Would you like to [D]ismiss, [R]eenter, or [S]tart working the selected task? Or you can go [B]ack.");
                         char editOption = Console.ReadKey().KeyChar;
+
                         if (editOption == 'D' || editOption == 'd')
                         {
                             string line = taskLists[taskNumber - 1];
@@ -61,25 +74,29 @@ namespace Simple_Scanning
                         {
                             string line = taskLists[taskNumber - 1];
                             string[] statusSeparator = line.Split(delimiterChars);
+
                             using (StreamWriter streamLine = File.AppendText(@"Task-List.txt"))
                             {
                                 statusSeparator = line.Split(delimiterChars);
                                 streamLine.WriteLine($"O{delimiterChars}{taskLists.Count + 1}.{delimiterChars}{statusSeparator[2]}");
                             }
-                            taskLists = FileReader(delimiterChars, fileName);
+
+                            taskLists = FileReader(fileName);
                             taskLists[taskNumber - 1] = $"D{delimiterChars}{statusSeparator[1]}{delimiterChars}{statusSeparator[2]}";
                             FileWriter(delimiterChars, taskLists, fileName);
-                            ConsoleWriter(delimiterChars, 0, taskLists);
+                            currentPlaceOnList = ConsoleWriter(delimiterChars, 0, taskLists);
                         }
                         else if (editOption == 'S' || editOption == 's')
                         {
                             bool taskAlreadyStarted = false;
                             string line = taskLists[0];
                             string[] statusSeparator = line.Split(delimiterChars);
+
                             for (int i = 0; i < taskLists.Count; i++)
                             {
                                 line = taskLists[i];
                                 statusSeparator = line.Split(delimiterChars);
+
                                 if (statusSeparator[0] == "S")
                                 {
                                     taskAlreadyStarted = true;
@@ -87,7 +104,7 @@ namespace Simple_Scanning
                             }
                             if (taskAlreadyStarted)
                             {
-                                Console.WriteLine("\nYou're already working on a task.  You'll need to dismiss or reenter the task to start a new one.\n");
+                                MenuPrinter("You're already working on a task.  You'll need to dismiss or reenter the task to start a new one.");
                             }
                             else
                             {
@@ -100,14 +117,12 @@ namespace Simple_Scanning
                         }
                         else if (editOption == 'B' || editOption == 'b')
                         {
-                            menuInput = MenuPrinter();
+                            continue;
                         }
                         else
                         {
-                            Console.WriteLine("\nPlease enter a valid choice.");
-                            menuInput = MenuPrinter();
+                            MenuPrinter("Please enter a valid choice.");
                         }
-                        menuInput = MenuPrinter();
                     }
                 }
                 else if (menuInput == 'X' || menuInput == 'x')
@@ -116,28 +131,28 @@ namespace Simple_Scanning
                 }
                 else
                 {
-                    Console.WriteLine("\nPlease enter a valid choice.");
-                    menuInput = MenuPrinter();
+                    MenuPrinter("Please enter a valid choice."); ;
                 }
-            } while (menuInput == 'N' || menuInput == 'n' || menuInput == 'I' || menuInput == 'i' || menuInput == 'X' || menuInput == 'x' || menuInput == 'E' || menuInput == 'e');
+                menuInput = ' ';
+            } while (menuInput == 'N' || menuInput == 'n' || menuInput == 'I' || menuInput == 'i' || menuInput == 'X' || menuInput == 'x' || menuInput == 'E' || menuInput == 'e' || menuInput == ' ');
         }
 
 
-        static char MenuPrinter()
+        static void MenuPrinter(string menuText)
         {
-            Console.WriteLine("\nOptions: [N]ext page.  [I]nsert a new task.  [E]dit a task.  E[X]it. ");
-            char menuInput = Console.ReadKey().KeyChar;
-
-            return menuInput;
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.WriteLine($"\n{menuText}\n");
+            Console.ForegroundColor = ConsoleColor.White;
         }
 
 
-        static List<string> FileReader(char delimiterChars, string fileName)
+        static List<string> FileReader(string fileName)
         {
             if (!File.Exists(fileName))
             {
                 File.Create(fileName);
             }
+
             var tasksFile = File.ReadAllLines(fileName);
             var taskLists = new List<string>(tasksFile);
 
@@ -148,24 +163,27 @@ namespace Simple_Scanning
         static void FileWriter(char delimiterChars, List<string> taskLists, string fileName)
         {
             taskLists = ListReorganizer(delimiterChars, taskLists);
+
             using (StreamWriter stream = File.CreateText(fileName))
             {
                 foreach (string l in taskLists)
                 {
                     stream.WriteLine(l);
                 }
+
                 stream.Close();
-                taskLists = FileReader(delimiterChars, fileName);
+                taskLists = FileReader(fileName);
             }
         }
 
 
         static List<string> ListReorganizer(char delimiterChars, List<string> taskLists)
         {
+            string line = taskLists[0];
+            string[] statusSeparator = line.Split(delimiterChars);
+
             try
             {
-                string line = taskLists[0];
-                string[] statusSeparator = line.Split(delimiterChars);
                 while (statusSeparator[0] == "D")
                 {
                     taskLists.RemoveAt(0);
@@ -181,7 +199,6 @@ namespace Simple_Scanning
             }
             catch
             {
-                Console.WriteLine("You have no tasks on your task list.  Joyous day!");
             }
 
             return taskLists;
@@ -191,20 +208,13 @@ namespace Simple_Scanning
         static int ConsoleWriter(char delimiterChars, int currentPlaceOnList, List<string> taskLists)
         {
             Console.Clear();
+
             if (currentPlaceOnList + 20 > taskLists.Count)
             {
-                try
+                for (int i = currentPlaceOnList; i < taskLists.Count; i++)
                 {
-                    for (int i = currentPlaceOnList; i < taskLists.Count; i++)
-                    {
-                        WriterLoopTask(taskLists, i);
-                    }
+                    WriterLoopTask(taskLists, i);
                 }
-                catch
-                {
-                    Console.WriteLine("You have no tasks on your task list.  Joyous day!");
-                }
-
 
                 currentPlaceOnList = 0;
             }
@@ -214,6 +224,7 @@ namespace Simple_Scanning
                 {
                     WriterLoopTask(taskLists, i);
                 }
+
                 currentPlaceOnList += 20;
             }
 
@@ -222,6 +233,7 @@ namespace Simple_Scanning
             {
                 string line = taskListsCopy[incrementer];
                 string[] statusSeparator = line.Split(delimiterChars);
+
                 if (statusSeparator[0] == "D" || statusSeparator[0] == "d")
                 {
                     Console.ForegroundColor = ConsoleColor.DarkGray;
