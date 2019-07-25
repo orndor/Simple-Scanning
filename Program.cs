@@ -34,7 +34,7 @@ namespace Simple_Scanning
                     }
 
                     taskLists = FileReader(delimiterChars, fileName);
-                    currentPlaceOnList = ConsoleWriter(delimiterChars, currentPlaceOnList, taskLists);
+                    ConsoleWriter(delimiterChars, 0, taskLists);
                     menuInput = MenuPrinter();
                 }
                 else if (menuInput == 'E' || menuInput == 'e')
@@ -55,7 +55,7 @@ namespace Simple_Scanning
                             string[] statusSeparator = line.Split(delimiterChars);
                             taskLists[taskNumber - 1] = $"D{delimiterChars}{statusSeparator[1]}{delimiterChars}{statusSeparator[2]}";
                             FileWriter(delimiterChars, taskLists, fileName);
-                            currentPlaceOnList = ConsoleWriter(delimiterChars, currentPlaceOnList, taskLists);
+                            ConsoleWriter(delimiterChars, 0, taskLists);
                         }
                         else if (editOption == 'R' || editOption == 'r')
                         {
@@ -69,7 +69,7 @@ namespace Simple_Scanning
                             taskLists = FileReader(delimiterChars, fileName);
                             taskLists[taskNumber - 1] = $"D{delimiterChars}{statusSeparator[1]}{delimiterChars}{statusSeparator[2]}";
                             FileWriter(delimiterChars, taskLists, fileName);
-                            currentPlaceOnList = ConsoleWriter(delimiterChars, currentPlaceOnList, taskLists);
+                            ConsoleWriter(delimiterChars, 0, taskLists);
                         }
                         else if (editOption == 'S' || editOption == 's')
                         {
@@ -95,7 +95,7 @@ namespace Simple_Scanning
                                 statusSeparator = line.Split(delimiterChars);
                                 taskLists[taskNumber - 1] = $"S{delimiterChars}{statusSeparator[1]}{delimiterChars}{statusSeparator[2]}";
                                 FileWriter(delimiterChars, taskLists, fileName);
-                                currentPlaceOnList = ConsoleWriter(delimiterChars, currentPlaceOnList, taskLists);
+                                ConsoleWriter(delimiterChars, 0, taskLists);
                             }
                         }
                         else if (editOption == 'B' || editOption == 'b')
@@ -122,6 +122,7 @@ namespace Simple_Scanning
             } while (menuInput == 'N' || menuInput == 'n' || menuInput == 'I' || menuInput == 'i' || menuInput == 'X' || menuInput == 'x' || menuInput == 'E' || menuInput == 'e');
         }
 
+
         static char MenuPrinter()
         {
             Console.WriteLine("\nOptions: [N]ext page.  [I]nsert a new task.  [E]dit a task.  E[X]it. ");
@@ -129,6 +130,7 @@ namespace Simple_Scanning
 
             return menuInput;
         }
+
 
         static List<string> FileReader(char delimiterChars, string fileName)
         {
@@ -142,13 +144,29 @@ namespace Simple_Scanning
             return taskLists;
         }
 
+
+        static void FileWriter(char delimiterChars, List<string> taskLists, string fileName)
+        {
+            taskLists = ListReorganizer(delimiterChars, taskLists);
+            using (StreamWriter stream = File.CreateText(fileName))
+            {
+                foreach (string l in taskLists)
+                {
+                    stream.WriteLine(l);
+                }
+                stream.Close();
+                taskLists = FileReader(delimiterChars, fileName);
+            }
+        }
+
+
         static List<string> ListReorganizer(char delimiterChars, List<string> taskLists)
         {
             try
             {
                 string line = taskLists[0];
                 string[] statusSeparator = line.Split(delimiterChars);
-                while (statusSeparator[0] == "D" || statusSeparator[0] == "D")
+                while (statusSeparator[0] == "D")
                 {
                     taskLists.RemoveAt(0);
                     line = taskLists[0];
@@ -169,52 +187,17 @@ namespace Simple_Scanning
             return taskLists;
         }
 
-        static void FileWriter(char delimiterChars, List<string> taskLists, string fileName)
-        {
-            taskLists =  ListReorganizer(delimiterChars, taskLists);
-            using (StreamWriter stream = File.CreateText(fileName))
-            {
-                foreach (string l in taskLists)
-                {
-                    stream.WriteLine(l);
-                }
-                stream.Close();
-                taskLists = FileReader(delimiterChars, fileName);
-            }
-        }
 
         static int ConsoleWriter(char delimiterChars, int currentPlaceOnList, List<string> taskLists)
         {
-            Console.WriteLine("\n");
-            taskLists = ListReorganizer(delimiterChars, taskLists);
+            Console.Clear();
             if (currentPlaceOnList + 20 > taskLists.Count)
             {
                 try
                 {
                     for (int i = currentPlaceOnList; i < taskLists.Count; i++)
                     {
-                        string line = taskLists[i];
-                        string[] statusSeparator = line.Split(delimiterChars);
-                        if (statusSeparator[0] == "D" || statusSeparator[0] == "d")
-                        {
-                            Console.BackgroundColor = ConsoleColor.Black;
-                            Console.ForegroundColor = ConsoleColor.DarkGray;
-                            Console.WriteLine($"{statusSeparator[1]} {statusSeparator[2]}");
-                            Console.BackgroundColor = ConsoleColor.Black;
-                            Console.ForegroundColor = ConsoleColor.White;
-                        }
-                        else if (statusSeparator[0] == "S" || statusSeparator[0] == "s")
-                        {
-                            Console.ForegroundColor = ConsoleColor.Black;
-                            Console.BackgroundColor = ConsoleColor.White;
-                            Console.WriteLine($"{statusSeparator[1]} {statusSeparator[2]}");
-                            Console.BackgroundColor = ConsoleColor.Black;
-                            Console.ForegroundColor = ConsoleColor.White;
-                        }
-                        else
-                        {
-                            Console.WriteLine($"{statusSeparator[1]} {statusSeparator[2]}");
-                        }
+                        WriterLoopTask(taskLists, i);
                     }
                 }
                 catch
@@ -227,33 +210,36 @@ namespace Simple_Scanning
             }
             else
             {
-                Console.WriteLine("\n");
                 for (int i = currentPlaceOnList; i <= (currentPlaceOnList + 19); i++)
                 {
-                    string line = taskLists[i];
-                    string[] statusSeparator = line.Split(delimiterChars);
-                    if (statusSeparator[0] == "D" || statusSeparator[0] == "d")
-                    {
-                        Console.BackgroundColor = ConsoleColor.Black;
-                        Console.ForegroundColor = ConsoleColor.DarkGray;
-                        Console.WriteLine($"{statusSeparator[1]} {statusSeparator[2]}");
-                        Console.BackgroundColor = ConsoleColor.Black;
-                        Console.ForegroundColor = ConsoleColor.White;
-                    }
-                    else if (statusSeparator[0] == "S" || statusSeparator[0] == "s")
-                    {
-                        Console.ForegroundColor = ConsoleColor.Black;
-                        Console.BackgroundColor = ConsoleColor.White;
-                        Console.WriteLine($"{statusSeparator[1]} {statusSeparator[2]}");
-                        Console.BackgroundColor = ConsoleColor.Black;
-                        Console.ForegroundColor = ConsoleColor.White;
-                    }
-                    else
-                    {
-                        Console.WriteLine($"{statusSeparator[1]} {statusSeparator[2]}");
-                    }
+                    WriterLoopTask(taskLists, i);
                 }
                 currentPlaceOnList += 20;
+            }
+
+
+            void WriterLoopTask(List<string> taskListsCopy, int incrementer)
+            {
+                string line = taskListsCopy[incrementer];
+                string[] statusSeparator = line.Split(delimiterChars);
+                if (statusSeparator[0] == "D" || statusSeparator[0] == "d")
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.WriteLine($"{statusSeparator[1]} {statusSeparator[2]}");
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
+                else if (statusSeparator[0] == "S" || statusSeparator[0] == "s")
+                {
+                    Console.BackgroundColor = ConsoleColor.White;
+                    Console.ForegroundColor = ConsoleColor.Black;
+                    Console.WriteLine($"{statusSeparator[1]} {statusSeparator[2]}");
+                    Console.BackgroundColor = ConsoleColor.Black;
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
+                else
+                {
+                    Console.WriteLine($"{statusSeparator[1]} {statusSeparator[2]}");
+                }
             }
 
             return currentPlaceOnList;
