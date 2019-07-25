@@ -119,7 +119,7 @@ namespace Simple_Scanning
                     Console.WriteLine("\nPlease enter a valid choice.");
                     menuInput = MenuPrinter();
                 }
-            } while (menuInput != 'N' || menuInput == 'n' || menuInput == 'I' || menuInput == 'i' || menuInput == 'X' || menuInput == 'x' || menuInput == 'E' || menuInput == 'e');
+            } while (menuInput == 'N' || menuInput == 'n' || menuInput == 'I' || menuInput == 'i' || menuInput == 'X' || menuInput == 'x' || menuInput == 'E' || menuInput == 'e');
         }
 
         static char MenuPrinter()
@@ -172,7 +172,7 @@ namespace Simple_Scanning
         static void FileWriter(char delimiterChars, List<string> taskLists, string fileName)
         {
             taskLists =  ListReorganizer(delimiterChars, taskLists);
-            using (StreamWriter stream = File.CreateText(@"Task-List.txt"))
+            using (StreamWriter stream = File.CreateText(fileName))
             {
                 foreach (string l in taskLists)
                 {
@@ -213,8 +213,6 @@ namespace Simple_Scanning
                         }
                         else
                         {
-                            Console.BackgroundColor = ConsoleColor.Black;
-                            Console.ForegroundColor = ConsoleColor.White;
                             Console.WriteLine($"{statusSeparator[1]} {statusSeparator[2]}");
                         }
                     }
@@ -252,10 +250,7 @@ namespace Simple_Scanning
                     }
                     else
                     {
-                        Console.BackgroundColor = ConsoleColor.Black;
-                        Console.ForegroundColor = ConsoleColor.White;
                         Console.WriteLine($"{statusSeparator[1]} {statusSeparator[2]}");
-
                     }
                 }
                 currentPlaceOnList += 20;
